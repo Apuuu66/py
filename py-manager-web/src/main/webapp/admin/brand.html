@@ -14,6 +14,12 @@
     <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../plugins/angularjs/angular.min.js"></script>
     <script type="text/javascript" src="../plugins/angularjs/pagination.js"></script>
+    <script type="text/javascript" src="../plugins/angularjs/pagination.js"></script>
+
+    <script type="text/javascript" src="../js/base_pagination.js"></script>
+    <script type="text/javascript" src="../js/service/brandService.js"></script>
+    <script type="text/javascript" src="../js/controller/baseController.js"></script>
+    <script type="text/javascript" src="../js/controller/brandController.js"></script>
 </head>
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brandController"
       ng-init="findAll()">
@@ -116,82 +122,5 @@
         </div>
     </div>
 </div>
-
 </body>
-<script>
-    var app = angular.module('pinyougou', ['pagination']);
-    app.controller('brandController', function ($scope, $http) {
-
-        $scope.findAll = function () {
-            $http.get('/brand/findAll').success(function (rtn) {
-                $scope.list = rtn;
-            });
-        };
-        $scope.searcEntity = {};
-        $scope.paginationConf = {
-            currentPage: 1,
-            totalItems: 10,
-            itemsPerPage: 10,
-            perPageOptions: [10, 20, 30, 40, 50],
-            onChange: function () {
-                $scope.reloadList();
-            }
-        };
-        $scope.reloadList = function () {
-            $scope.search($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-        };
-        $scope.findPage = function (page, size) {
-            $http.get("/brand/findPage?currPage=" + page + '&pageSize=' + size).success(function (rtn) {
-                $scope.list = rtn.rows;
-                $scope.paginationConf.totalItems = rtn.total;
-            });
-        };
-        // 新增
-        $scope.save = function () {
-            var method = 'add';
-            if ($scope.entity != null) {
-                method = 'update';
-            }
-            $http.post('/brand/' + method, $scope.entity).success(function (rtn) {
-                if (rtn.success) {
-                    $scope.reloadList();
-                } else {
-                    alert(rtn.message);
-                }
-            });
-        };
-        $scope.findOne = function (id) {
-            $http.get('/brand/findOne?id=' + id).success(function (rtn) {
-                $scope.entity = rtn;
-            })
-        };
-
-        $scope.selectIds = [];
-        $scope.updateSelection = function ($event, id) {
-            if ($event.target.checked) {//如果是被选中,则增加到数组
-                $scope.selectIds.push(id);
-            } else {
-                var idx = $scope.selectIds.indexOf(id);
-                $scope.selectIds.splice(idx, 1);//参数1:移除位置，参数2:移除个数
-            }
-        };
-        //批量删除
-        $scope.dele = function () {
-            //获取选中的复选框
-            $http.get('/brand/delete?ids=' + $scope.selectIds).success(
-                function (response) {
-                    if (response.success) {
-                        $scope.reloadList();//刷新列表
-                    }
-                }
-            );
-        };
-        $scope.search = function (page, size) {
-            $http.post("/brand/search?currPage=" + page + '&pageSize=' + size, $scope.searcEntity).success(function (rtn) {
-                $scope.list = rtn.rows;
-                $scope.paginationConf.totalItems = rtn.total;
-            });
-        };
-    });
-</script>
 </html>
